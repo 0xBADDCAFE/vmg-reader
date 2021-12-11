@@ -14,7 +14,7 @@ const createWindow = async () => {
     await win.loadURL("http://localhost:3000");
     // TODO: Load DevTools
   } else {
-    win.loadFile("dist/index.html");
+    win.loadFile("index.html");
   }
 };
 

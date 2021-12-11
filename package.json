@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "NODE_ENV=development run-p dev --race electron:dev",
-    "electron:dev": "electron .",
+    "start": "NODE_ENV=development npm-run-all electron:tsc -p dev -r electron:dev",
+    "electron:dev": "electron dist/main.js",
+    "electron:tsc": "esbuild main.ts preload.ts --outdir=dist",
+    "electron:tsc:prod": "esbuild main.ts preload.ts --outdir=dist --minify --sourcemap",
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview"
@@ -19,6 +21,7 @@
     "@vitejs/plugin-react": "^1.0.0",
     "electron": "^16.0.4",
     "electron-devtools-installer": "^3.2.0",
+    "esbuild": "^0.14.2",
     "npm-run-all": "^4.1.5",
     "typescript": "^4.3.2",
     "vite": "^2.6.4"
