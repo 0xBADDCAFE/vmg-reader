@@ -10,7 +10,12 @@ const createWindow = async () => {
     },
   });
 
-  win.loadFile("dist/index.html");
+  if (process.env.NODE_ENV === "development") {
+    await win.loadURL("http://localhost:3000");
+    // TODO: Load DevTools
+  } else {
+    win.loadFile("dist/index.html");
+  }
 };
 
 app.whenReady().then(() => {
