@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 
 const createWindow = async () => {
@@ -32,4 +32,18 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+// IPC Main
+
+ipcMain.handle("open-file-dialog", async (ev, msg) => {
+  var win = BrowserWindow.getFocusedWindow();
+  if (win == null) return [];
+  var result = await dialog.showOpenDialog(win, {
+    properties: ["openFile", "multiSelections"],
+  });
+  if (result.canceled) {
+    return [];
+  }
+  return result.filePaths;
 });

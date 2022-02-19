@@ -1,3 +1,10 @@
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("electronAPI", {
+  showOpenFileDialog: async (message) =>
+    ipcRenderer.invoke("open-file-dialog", message),
+});
+
 window.addEventListener("DOMContentLoaded", () => {
   const replaceText = (selector, text) => {
     const element = document.getElementById(selector);
