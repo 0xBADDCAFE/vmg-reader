@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=development npm-run-all electron:tsc -p dev -r electron:dev",
     "electron:dev": "electron dist/main.js",
-    "electron:tsc": "esbuild main.ts preload.ts --outdir=dist",
+    "electron:tsc": "esbuild main.ts preload.ts --format=cjs --outdir=dist",
     "electron:tsc:prod": "esbuild main.ts preload.ts --outdir=dist --minify --sourcemap",
     "dev": "vite",
     "build": "tsc && vite build",
