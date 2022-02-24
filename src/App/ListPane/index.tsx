@@ -3,7 +3,7 @@ import { useState } from "react";
 import MessageItem from "./MessageItem";
 
 const ListPane = () => {
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<string>("");
 
   const list = [
     {

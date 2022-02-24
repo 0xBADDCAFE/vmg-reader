@@ -1,8 +1,21 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { VMG } from "./src/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  showOpenFileDialog: async (message) =>
-    ipcRenderer.invoke("open-file-dialog", message),
+  openVmg: async (): Promise<VMG> => {
+    // ipcRenderer.invoke("open-file-dialog", "Select VMG File")
+    return {
+      fileName: "",
+      messages: [
+        {
+          from: "",
+          subject: "",
+          date: new Date("Wed, 9 Apr 2008 16:30:00 +0900"),
+          body: "",
+        },
+      ],
+    };
+  },
 });
 
 window.addEventListener("DOMContentLoaded", () => {

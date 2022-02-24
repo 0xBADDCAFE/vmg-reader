@@ -7,3 +7,15 @@ declare global {
     electronAPI: IElectronAPI;
   }
 }
+
+type VMG = {
+  fileName: string;
+  messages: [
+    {
+      from: string;
+      subject: string;
+      date: Date;
+      body: string;
+    }
+  ];
+};
