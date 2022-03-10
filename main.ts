@@ -41,6 +41,7 @@ ipcMain.handle("open-file-dialog", async (ev, msg) => {
   var win = BrowserWindow.getFocusedWindow();
   if (win == null) return [];
   var result = await dialog.showOpenDialog(win, {
+    filters: [{ name: "VMG Files", extensions: ["vmg"] }],
     properties: ["openFile", "multiSelections"],
   });
   if (result.canceled) {

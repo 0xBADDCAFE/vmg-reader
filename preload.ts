@@ -1,9 +1,18 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { VMG } from "./src/types";
+import { TextDecoder } from "util";
+import { readFile } from "fs/promises";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   openVmg: async (): Promise<VMG> => {
-    // ipcRenderer.invoke("open-file-dialog", "Select VMG File")
+    const filePathList: string[] = await ipcRenderer.invoke(
+      "open-file-dialog",
+      "Select VMG File"
+    );
+    console.log(filePathList);
+    const d = new TextDecoder("sjis");
+    const s = d.decode(await readFile(filePathList[0]));
+    console.log(s);
 
     const from = "foo@bar.baz";
     const date = new Date("Wed, 9 Apr 2008 16:30:00 +0900");
