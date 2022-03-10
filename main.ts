@@ -13,6 +13,7 @@ const createWindow = async () => {
   if (process.env.NODE_ENV === "development") {
     await win.loadURL("http://localhost:3000");
     // TODO: Load DevTools
+    win.webContents.openDevTools();
   } else {
     win.loadFile("index.html");
   }
