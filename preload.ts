@@ -4,14 +4,18 @@ import { VMG } from "./src/types";
 contextBridge.exposeInMainWorld("electronAPI", {
   openVmg: async (): Promise<VMG> => {
     // ipcRenderer.invoke("open-file-dialog", "Select VMG File")
+
+    const from = "foo@bar.baz";
+    const date = new Date("Wed, 9 Apr 2008 16:30:00 +0900");
     return {
       fileName: "",
       messages: [
         {
-          from: "",
-          subject: "",
-          date: new Date("Wed, 9 Apr 2008 16:30:00 +0900"),
-          body: "",
+          id: `${date.getTime()}_${from}`,
+          from,
+          subject: "This is email title",
+          date,
+          body: "あのイーハトーヴォのすきとおった風、夏でも底に冷たさをもつ青いそら、うつくしい森で飾られたモリーオ市、郊外のぎらぎらひかる草の波。",
         },
       ],
     };

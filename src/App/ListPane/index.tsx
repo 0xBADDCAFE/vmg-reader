@@ -1,39 +1,19 @@
 import { Box, Center, GridItem, VStack } from "@chakra-ui/react";
-import { useState } from "react";
+import { VMG } from "../../types";
 import MessageItem from "./MessageItem";
 
-const ListPane = () => {
-  const [selected, setSelected] = useState<string>("");
+type Props = {
+  vmg: VMG;
+  onClickItem: (id: string) => void;
+  selectedItemId: string;
+};
 
-  const list = [
-    {
-      id: "1",
-      name: "名前1",
-      date: new Date(),
-      title: "タイトル1",
-      body: "あああ",
-    },
-    {
-      id: "2",
-      name: "名前2",
-      date: new Date(),
-      title: "タイトル2",
-      body: "いいい",
-    },
-    {
-      id: "3",
-      name: "名前3",
-      date: new Date(),
-      title: "タイトルその3",
-      body: "うえおかきくけこ",
-    },
-  ].map((item) => (
+const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
+  const list = vmg.messages.map((item) => (
     <MessageItem
       key={item.id}
-      onClick={() => {
-        setSelected(item.id);
-      }}
-      selected={item.id === selected}
+      onClick={() => onClickItem(item.id)}
+      selected={item.id === selectedItemId}
       {...item}
     />
   ));

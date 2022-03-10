@@ -8,7 +8,42 @@ import ContentPane from "./App/ContentPane";
 import { VMG } from "./types";
 
 const App = () => {
-  const [vmg, setVmg] = useState<VMG>();
+  const [vmg, setVmg] = useState<VMG>({
+    fileName: "",
+    messages: [
+      {
+        id: "1",
+        from: "名前1",
+        date: new Date(),
+        subject: "タイトル1",
+        body: "あああ",
+      },
+      {
+        id: "2",
+        from: "名前2",
+        date: new Date(),
+        subject: "タイトル2",
+        body: "いいい",
+      },
+      {
+        id: "3",
+        from: "名前3",
+        date: new Date(),
+        subject: "タイトルその3",
+        body: "うえおかきくけこ",
+      },
+    ],
+  });
+  const [selected, setSelected] = useState<string>("");
+
+  const onClickLoadVmg = async () => {
+    console.log("Open VMG");
+    const vmg = await window.electronAPI.openVmg();
+    setVmg(vmg);
+    if (vmg.messages.length > 0) {
+      setSelected(vmg.messages[0].id);
+    }
+  };
 
   return (
     <Grid
@@ -19,8 +54,11 @@ const App = () => {
       bg="#e6e6e6"
       userSelect="none"
     >
-      <ListPane />
-      <ContentPane />
+      <ListPane vmg={vmg} onClickItem={setSelected} selectedItemId={selected} />
+      <ContentPane
+        message={vmg.messages.find((m) => m.id === selected)}
+        onClickLoadVmg={onClickLoadVmg}
+      />
     </Grid>
   );
 };

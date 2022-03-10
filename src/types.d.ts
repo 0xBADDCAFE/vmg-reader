@@ -1,5 +1,5 @@
 export interface IElectronAPI {
-  showOpenFileDialog: () => Promise<void>;
+  openVmg: () => Promise<VMG>;
 }
 
 declare global {
@@ -8,14 +8,15 @@ declare global {
   }
 }
 
+type Message = {
+  id: string;
+  from: string;
+  subject: string;
+  date: Date;
+  body: string;
+};
+
 type VMG = {
   fileName: string;
-  messages: [
-    {
-      from: string;
-      subject: string;
-      date: Date;
-      body: string;
-    }
-  ];
+  messages: Message[];
 };
