@@ -15,7 +15,9 @@
     "@chakra-ui/react": "^1.7.4",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@types/mailparser": "^3.4.0",
     "framer-motion": "^5",
+    "mailparser": "^3.4.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },

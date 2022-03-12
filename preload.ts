@@ -1,7 +1,9 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { VMG } from "./src/types";
-import { TextDecoder } from "util";
+import { Message, VMG } from "./src/types";
 import { readFile } from "fs/promises";
+import { simpleParser, ParsedMail } from "mailparser";
+
+const MARKER_OFFSET = "BEGIN:VBODY".length + 2;
 
 contextBridge.exposeInMainWorld("electronAPI", {
   openVmg: async (): Promise<VMG> => {
@@ -9,25 +11,34 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "open-file-dialog",
       "Select VMG File"
     );
-    console.log(filePathList);
-    const d = new TextDecoder("sjis");
-    const s = d.decode(await readFile(filePathList[0]));
-    console.log(s);
+    const fileName = filePathList[0];
+    const s = await readFile(fileName);
 
-    const from = "foo@bar.baz";
-    const date = new Date("Wed, 9 Apr 2008 16:30:00 +0900");
-    return {
-      fileName: "",
-      messages: [
-        {
-          id: `${date.getTime()}_${from}`,
-          from,
-          subject: "This is email title",
-          date,
-          body: "あのイーハトーヴォのすきとおった風、夏でも底に冷たさをもつ青いそら、うつくしい森で飾られたモリーオ市、郊外のぎらぎらひかる草の波。",
-        },
-      ],
-    };
+    const messages: Message[] = [];
+    const skipped: ParsedMail[] = [];
+    const bodyStrList: string[] = [];
+    let offset = s.indexOf("BEGIN:VBODY") + MARKER_OFFSET;
+    while (offset > MARKER_OFFSET) {
+      const bodyStr = s.slice(offset, s.indexOf("END:VBODY", offset));
+      // console.log(bodyStr);
+      const parsed = await simpleParser(bodyStr);
+      if (!parsed.from) {
+        // SMS or other
+        skipped.push(parsed);
+      } else {
+        // console.log(parsed);
+        messages.push({
+          id: crypto.randomUUID(),
+          ...parsed,
+        });
+      }
+      offset = s.indexOf("BEGIN:VBODY", offset) + MARKER_OFFSET;
+    }
+    console.log(messages);
+    console.log("Skipped:");
+    console.log(skipped);
+
+    return { fileName, messages };
   },
 });
 

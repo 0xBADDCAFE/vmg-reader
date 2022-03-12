@@ -1,3 +1,5 @@
+import { ParsedMail } from "mailparser";
+
 export interface IElectronAPI {
   openVmg: () => Promise<VMG>;
 }
@@ -6,15 +8,14 @@ declare global {
   interface Window {
     electronAPI: IElectronAPI;
   }
+  interface Crypto {
+    randomUUID(): string;
+  }
 }
 
 type Message = {
   id: string;
-  from: string;
-  subject: string;
-  date: Date;
-  body: string;
-};
+} & ParsedMail;
 
 type VMG = {
   fileName: string;

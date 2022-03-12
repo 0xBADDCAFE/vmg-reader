@@ -12,15 +12,27 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
   const list = vmg.messages.map((item) => (
     <MessageItem
       key={item.id}
-      onClick={() => onClickItem(item.id)}
+      from={item.from?.text ?? ""}
+      date={item.date}
+      subject={item.subject ?? ""}
+      onClick={() => {
+        console.log(item);
+        onClickItem(item.id);
+      }}
       selected={item.id === selectedItemId}
-      {...item}
+      body={(item.html ? item.html : item.textAsHtml) ?? ""}
     />
   ));
 
   return (
     <GridItem>
-      <VStack h="100vh" bg="#e6e6e6" align="stretch" spacing={0.5}>
+      <VStack
+        h="100vh"
+        bg="#e6e6e6"
+        align="stretch"
+        spacing={0.5}
+        overflowY="auto"
+      >
         <Box h={16} bg="#fff" color="#e6e6e6">
           <Center>Header</Center>
         </Box>

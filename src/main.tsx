@@ -10,29 +10,7 @@ import { VMG } from "./types";
 const App = () => {
   const [vmg, setVmg] = useState<VMG>({
     fileName: "",
-    messages: [
-      {
-        id: "1",
-        from: "名前1",
-        date: new Date(),
-        subject: "タイトル1",
-        body: "あああ",
-      },
-      {
-        id: "2",
-        from: "名前2",
-        date: new Date(),
-        subject: "タイトル2",
-        body: "いいい",
-      },
-      {
-        id: "3",
-        from: "名前3",
-        date: new Date(),
-        subject: "タイトルその3",
-        body: "うえおかきくけこ",
-      },
-    ],
+    messages: [],
   });
   const [selected, setSelected] = useState<string>("");
 
@@ -54,7 +32,12 @@ const App = () => {
       bg="#e6e6e6"
       userSelect="none"
     >
-      <ListPane vmg={vmg} onClickItem={setSelected} selectedItemId={selected} />
+      <ListPane
+        vmg={vmg}
+        onClickItem={setSelected}
+        selectedItemId={selected}
+        overflowY="scroll"
+      />
       <ContentPane
         message={vmg.messages.find((m) => m.id === selected)}
         onClickLoadVmg={onClickLoadVmg}

@@ -8,12 +8,15 @@ type Props = {
 
 const ContentPane: React.VFC<Props> = (props) =>
   props.message ? (
-    <GridItem bg="#fff" padding={8}>
+    <GridItem bg="#fff" padding={8} overflow="auto">
       <Heading size="md">{props.message.subject}</Heading>
       <Heading size="sm" mt={4}>
-        {props.message.from}
+        {props.message.from?.text}
       </Heading>
-      <Box mt={4}>{props.message.body}</Box>
+      <Box mt={4}>
+        {(props.message.html ? props.message.html : props.message.textAsHtml) ??
+          ""}
+      </Box>
     </GridItem>
   ) : (
     <GridItem bg="#fff">
