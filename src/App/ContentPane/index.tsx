@@ -6,24 +6,33 @@ type Props = {
   onClickLoadVmg: () => Promise<void>;
 };
 
-const ContentPane: React.VFC<Props> = (props) =>
-  props.message ? (
-    <GridItem bg="#fff" padding={8} overflow="auto">
-      <Heading size="md">{props.message.subject}</Heading>
-      <Heading size="sm" mt={4}>
-        {props.message.from?.text}
-      </Heading>
-      <Box mt={4}>
-        {(props.message.html ? props.message.html : props.message.textAsHtml) ??
-          ""}
-      </Box>
-    </GridItem>
-  ) : (
-    <GridItem bg="#fff">
-      <Center h="100%">
-        <Button onClick={props.onClickLoadVmg}>Open VMG</Button>
-      </Center>
-    </GridItem>
-  );
+const ContentPane: React.VFC<Props> = (props) => {
+  if (props.message) {
+    const __html = new DOMParser().parseFromString(
+      (props.message.html ? props.message.html : props.message.textAsHtml) ??
+        "",
+      "text/html"
+    ).body.innerHTML;
+
+    return (
+      <GridItem bg="#fff" padding={8} overflow="auto">
+        <Heading size="md">{props.message.subject}</Heading>
+        <Heading size="sm" mt={4}>
+          {props.message.from?.text}
+        </Heading>
+        <Box mt={4} dangerouslySetInnerHTML={{ __html }} />
+      </GridItem>
+    );
+  } else
+    return (
+      <GridItem bg="#fff">
+        <Center h="100%">
+          <Button _focus={{ outline: "none" }} onClick={props.onClickLoadVmg}>
+            Open VMG
+          </Button>
+        </Center>
+      </GridItem>
+    );
+};
 
 export default ContentPane;
