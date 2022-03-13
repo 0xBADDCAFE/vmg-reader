@@ -16,7 +16,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
       date={item.date}
       subject={item.subject ?? ""}
       onClick={() => {
-        console.log(item);
+        // console.log(item);
         onClickItem(item.id);
       }}
       selected={item.id === selectedItemId}

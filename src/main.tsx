@@ -32,12 +32,7 @@ const App = () => {
       bg="#e6e6e6"
       userSelect="none"
     >
-      <ListPane
-        vmg={vmg}
-        onClickItem={setSelected}
-        selectedItemId={selected}
-        overflowY="scroll"
-      />
+      <ListPane vmg={vmg} onClickItem={setSelected} selectedItemId={selected} />
       <ContentPane
         message={vmg.messages.find((m) => m.id === selected)}
         onClickLoadVmg={onClickLoadVmg}
