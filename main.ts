@@ -15,7 +15,7 @@ const createWindow = async () => {
     // TODO: Load DevTools
     win.webContents.openDevTools();
   } else {
-    win.loadFile("index.html");
+    win.loadFile("dist/index.html");
   }
 };
 

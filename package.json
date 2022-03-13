@@ -1,27 +1,36 @@
 {
   "name": "vmg-reader",
   "version": "0.0.0",
-  "main": "main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "NODE_ENV=development npm-run-all electron:tsc -p dev -r electron:dev",
+    "start": "electron-forge start",
     "electron:dev": "electron dist/main.js",
     "electron:tsc": "esbuild main.ts preload.ts --format=cjs --outdir=dist",
-    "electron:tsc:prod": "esbuild main.ts preload.ts --outdir=dist --minify --sourcemap",
+    "electron:tsc:prod": "esbuild main.ts preload.ts --format=cjs --outdir=dist --minify --sourcemap",
     "dev": "vite",
     "build": "tsc && vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.7.4",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "@types/mailparser": "^3.4.0",
+    "electron-squirrel-startup": "^1.0.0",
     "framer-motion": "^5",
     "mailparser": "^3.4.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
+    "@electron/get": "~1.13.1",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@vitejs/plugin-react": "^1.0.0",
@@ -31,5 +40,33 @@
     "npm-run-all": "^4.1.5",
     "typescript": "^4.3.2",
     "vite": "^2.6.4"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "vmg_reader"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin",
+            "win32"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }
