@@ -37,6 +37,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       }
       offset = s.indexOf("BEGIN:VBODY", offset) + MARKER_OFFSET;
     }
+    messages.sort((l, r) => l.date.getTime() - r.date.getTime());
     console.log(messages);
     console.log("Skipped:");
     console.log(skipped);
