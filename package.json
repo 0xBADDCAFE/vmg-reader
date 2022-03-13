@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "main": "dist/main.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "NODE_ENV=development npm-run-all electron:tsc -p dev -r electron:dev",
+    "start:forge": "electron-forge start",
     "electron:dev": "electron dist/main.js",
     "electron:tsc": "esbuild main.ts preload.ts --format=cjs --outdir=dist",
     "electron:tsc:prod": "esbuild main.ts preload.ts --format=cjs --outdir=dist --minify --sourcemap",
