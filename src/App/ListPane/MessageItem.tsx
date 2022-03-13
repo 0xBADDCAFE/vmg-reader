@@ -1,4 +1,5 @@
 import { Box, Center, Grid, GridItem } from "@chakra-ui/react";
+import { useMemo } from "react";
 
 type Props = {
   from: string;
@@ -10,9 +11,24 @@ type Props = {
 };
 
 const MessageItem: React.VFC<Props> = (item) => {
-  const styleProps = item.selected
-    ? { bg: "gray.200" }
-    : { bg: "#fff", _hover: { bg: "#f3f3f3" } };
+  const styleProps = useMemo(
+    () =>
+      item.selected
+        ? { bg: "gray.200" }
+        : { bg: "#fff", _hover: { bg: "#f3f3f3" } },
+    [item.selected]
+  );
+  // const styleProps = item.selected
+  //   ? { bg: "gray.200" }
+  //   : { bg: "#fff", _hover: { bg: "#f3f3f3" } };
+
+  const body = useMemo(
+    () =>
+      new DOMParser().parseFromString(item.body, "text/html").body.textContent,
+    [item.body]
+  );
+  // const body = new DOMParser().parseFromString(item.body, "text/html").body
+  //   .textContent;
 
   return (
     <Box padding={2} paddingStart={4} {...styleProps} onClick={item.onClick}>
@@ -35,7 +51,7 @@ const MessageItem: React.VFC<Props> = (item) => {
           {item.subject}
         </GridItem>
         <GridItem gridRow="3/4" color="gray.500" isTruncated>
-          {item.body}
+          {body}
         </GridItem>
       </Grid>
     </Box>
