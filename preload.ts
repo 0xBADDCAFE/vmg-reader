@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "open-file-dialog",
       "Select VMG File"
     );
+    if (filePathList.length == 0) {
+      return { fileName: "", messages: [] };
+    }
     const fileName = filePathList[0];
     const s = await readFile(fileName);
 
