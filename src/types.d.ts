@@ -1,7 +1,9 @@
 import { ParsedMail } from "mailparser";
 
 export interface IElectronAPI {
-  openVmg: () => Promise<VMG>;
+  openVmg: (
+    onProgressUpdate?: (current: number, total: number) => void
+  ) => Promise<VMG>;
 }
 
 declare global {
