@@ -16,13 +16,9 @@ type Props = {
 };
 
 const ContentLoadingProgress: React.VFC<Props> = (props) => {
-  let label, value: number;
-  if (props.current == 0 || props.total == 0) {
-    label = "Loading..";
-    value = 0;
-  } else {
+  let label = "Loading..";
+  if (props.current != 0 && props.total != 0) {
     label = `${props.current}/${props.total}`;
-    value = (props.current / props.total) * 100;
   }
 
   return (
@@ -32,10 +28,12 @@ const ContentLoadingProgress: React.VFC<Props> = (props) => {
         <ModalBody>
           <Center>
             <CircularProgress
-              value={value}
+              value={props.current}
+              max={props.total}
               size={240}
               thickness={4}
-              color="blue.100"
+              color="blue.200"
+              trackColor="blue.50"
             >
               <CircularProgressLabel fontSize={36}>
                 {label}
