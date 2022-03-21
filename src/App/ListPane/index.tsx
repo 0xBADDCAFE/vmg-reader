@@ -1,5 +1,6 @@
 import { Box, Center, GridItem, VStack } from "@chakra-ui/react";
-import { Virtuoso } from "react-virtuoso";
+import React, { useRef } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { VMG } from "../../types";
 import MessageItem from "./MessageItem";
 
@@ -10,6 +11,8 @@ type Props = {
 };
 
 const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
+  const virtuoso = useRef<VirtuosoHandle>(null);
+
   const list = vmg.messages.map((item) => (
     <MessageItem
       key={item.id}
@@ -24,6 +27,24 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
       body={(item.html ? item.html : item.textAsHtml) ?? ""}
     />
   ));
+
+  const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
+    ev.preventDefault();
+    if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
+
+    const currentItem = vmg.messages.find((el) => el.id == selectedItemId);
+    if (!currentItem) return;
+
+    const nextIndex =
+      vmg.messages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
+    if (!vmg.messages[nextIndex]) return;
+    onClickItem(vmg.messages[nextIndex].id);
+    virtuoso.current?.scrollToIndex({
+      index: nextIndex,
+      align: "center",
+      // behavior: "smooth",
+    });
+  };
 
   // TODO: Footer
   return (
@@ -40,6 +61,8 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
         </Box>
         <Box flex={1}>
           <Virtuoso
+            ref={virtuoso}
+            onKeyDown={onListKeyDown}
             style={{ height: "100%" }}
             data={list}
             itemContent={(i, el) => el}
