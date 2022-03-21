@@ -1,7 +1,7 @@
 import { Box, Center, GridItem, VStack } from "@chakra-ui/react";
-import React, { useRef } from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
-import { VMG } from "../../types";
+import React, { useMemo, useRef } from "react";
+import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
+import { Message, VMG } from "../../types";
 import MessageItem from "./MessageItem";
 
 type Props = {
@@ -12,6 +12,10 @@ type Props = {
 
 const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const { groups, groupCounts } = useMemo(
+    () => getGroupsByDate(vmg.messages),
+    [vmg]
+  );
 
   const list = vmg.messages.map((item) => (
     <MessageItem
@@ -60,17 +64,57 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
           <Center>Header</Center>
         </Box>
         <Box flex={1}>
-          <Virtuoso
+          <GroupedVirtuoso
+            groupCounts={groupCounts}
             ref={virtuoso}
             onKeyDown={onListKeyDown}
             style={{ height: "100%" }}
-            data={list}
-            itemContent={(i, el) => el}
+            groupContent={(i) => {
+              return (
+                <Box
+                  bg="gray.50"
+                  color="gray.400"
+                  paddingStart={4}
+                  // borderBottom={["1px", "gray.100"]}
+                  boxShadow="0px 3px 5px 0px #F3F4ED"
+                >
+                  {groups[i]}
+                </Box>
+              );
+            }}
+            itemContent={(i) => list[i]}
           />
         </Box>
       </VStack>
     </GridItem>
   );
+};
+
+const getGroupsByDate = (messages: Message[]) => {
+  const groups: string[] = [];
+  const groupCounts: number[] = [];
+
+  let dateStr = "";
+  let groupCnt = 0;
+
+  messages.forEach((m) => {
+    const newDate = m.date?.toLocaleString("ja-JP", { dateStyle: "full" });
+    if (!newDate) return;
+    if (newDate != dateStr) {
+      // New group
+      groups.push((dateStr = newDate));
+      if (groupCnt != 0) {
+        groupCounts.push(groupCnt);
+        groupCnt = 0;
+      }
+    }
+    groupCnt++;
+  });
+  if (groupCnt != 0) groupCounts.push(groupCnt);
+
+  console.assert(groups.length == groupCounts.length, { groups, groupCounts });
+
+  return { groups, groupCounts };
 };
 
 export default ListPane;
