@@ -33,8 +33,8 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
   ));
 
   const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
-    ev.preventDefault();
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
+    ev.preventDefault();
 
     const currentItem = vmg.messages.find((el) => el.id == selectedItemId);
     if (!currentItem) return;
