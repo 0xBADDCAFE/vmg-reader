@@ -1,4 +1,5 @@
 import { Box, Center, GridItem, VStack } from "@chakra-ui/react";
+import { Virtuoso } from "react-virtuoso";
 import { VMG } from "../../types";
 import MessageItem from "./MessageItem";
 
@@ -24,6 +25,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
     />
   ));
 
+  // TODO: Footer
   return (
     <GridItem>
       <VStack
@@ -36,9 +38,12 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
         <Box h={16} bg="#fff" color="#e6e6e6">
           <Center>Header</Center>
         </Box>
-        {list}
-        <Box flex={1} bg="#f9f9f9" color="#e6e6e6">
-          <Center>Space</Center>
+        <Box flex={1}>
+          <Virtuoso
+            style={{ height: "100%" }}
+            data={list}
+            itemContent={(i, el) => el}
+          />
         </Box>
       </VStack>
     </GridItem>
