@@ -41,7 +41,10 @@ const MessageItem: React.VFC<Props> = (item) => {
         {/* <GridItem gridRow="1/4">アイコン</GridItem> */}
         <GridItem gridColumn="2/3" gridRow="1/4">
           <Center h="100%" color="gray.500">
-            {item.date?.toLocaleDateString()}
+            {item.date?.toLocaleString("ja-JP", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
           </Center>
         </GridItem>
         <GridItem gridRow="1/2" isTruncated>

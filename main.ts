@@ -1,10 +1,11 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 
 const createWindow = async () => {
   const win = new BrowserWindow({
     width: 1280,
     height: 960,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },

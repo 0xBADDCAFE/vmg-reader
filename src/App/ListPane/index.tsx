@@ -29,7 +29,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
   return (
     <GridItem>
       <VStack
-        h="100vh"
+        h="100%"
         bg="#e6e6e6"
         align="stretch"
         spacing={0.5}
