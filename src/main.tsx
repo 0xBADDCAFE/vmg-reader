@@ -1,5 +1,5 @@
 import { ChakraProvider, Grid, useDisclosure } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import ContentLoadingProgress from "./App/ContentLoadingProgress";
 import ContentPane from "./App/ContentPane";
@@ -17,6 +17,13 @@ const App = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [progressTotal, setProgressTotal] = useState<number>(0);
   const [progressCurrent, setProgressCurrent] = useState<number>(0);
+  useEffect(() => {
+    if (vmg.fileName.trim() === "") {
+      document.title = "VMG Reader";
+    } else {
+      document.title = `VMG Reader [${vmg.fileName}]`;
+    }
+  });
 
   const onClickLoadVmg = async () => {
     console.log("Open VMG");
