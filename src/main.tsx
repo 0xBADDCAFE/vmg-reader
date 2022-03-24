@@ -17,6 +17,7 @@ const App = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [progressTotal, setProgressTotal] = useState<number>(0);
   const [progressCurrent, setProgressCurrent] = useState<number>(0);
+
   useEffect(() => {
     if (vmg.fileName.trim() === "") {
       document.title = "VMG Reader";
@@ -53,7 +54,7 @@ const App = () => {
         userSelect="none"
       >
         <ListPane
-          vmg={vmg}
+          messages={vmg.messages}
           onClickItem={setSelected}
           selectedItemId={selected}
         />

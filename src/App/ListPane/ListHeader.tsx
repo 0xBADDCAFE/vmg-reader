@@ -5,6 +5,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
   Menu,
   MenuButton,
   MenuItem,
@@ -16,9 +17,12 @@ import {
   FaSortAmountDown,
   FaSortAmountUp,
 } from "react-icons/fa";
-import { MdFilterAlt, MdTune } from "react-icons/md";
+import { MdClear, MdFilterAlt, MdTune } from "react-icons/md";
 
-type Props = { onFilterChanged: (filterStr: string) => void };
+type Props = {
+  filterStr: string;
+  onFilterChanged: (filterStr: string) => void;
+};
 
 const ListHeader: React.VFC<Props> = (props) => (
   // Do not use Stack to prevent warning by default spacing
@@ -34,7 +38,21 @@ const ListHeader: React.VFC<Props> = (props) => (
         size="sm"
         type="tel"
         placeholder="Filter with from address"
+        value={props.filterStr}
         onChange={(ev) => props.onFilterChanged(ev.target.value)}
+      />
+      <InputRightElement
+        children={
+          <IconButton
+            marginTop={-2}
+            marginEnd={-2}
+            size="xs"
+            aria-label="Clear filter"
+            icon={<MdClear />}
+            _focus={{ outline: "none" }}
+            onClick={() => props.onFilterChanged("")}
+          />
+        }
       />
     </InputGroup>
     <Menu>

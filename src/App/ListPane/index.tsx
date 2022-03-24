@@ -1,24 +1,44 @@
 import { Box, GridItem, VStack } from "@chakra-ui/react";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
-import { Message, VMG } from "../../types";
+import { Message } from "../../types";
 import ListHeader from "./ListHeader";
 import MessageItem from "./MessageItem";
 
 type Props = {
-  vmg: VMG;
+  messages: Message[];
   onClickItem: (id: string) => void;
   selectedItemId: string;
 };
 
-const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const { groups, groupCounts } = useMemo(
-    () => getGroupsByDate(vmg.messages),
-    [vmg]
-  );
+type SortKind = "AlphaAsc" | "AlphaDesc" | "DateAsc" | "DateDesc";
+const compareFunc = new Map<SortKind, (l: Message, r: Message) => number>([
+  ["AlphaAsc", (l, r) => l.from?.text.localeCompare(r.from?.text ?? "") ?? 0],
+  ["AlphaDesc", (l, r) => r.from?.text.localeCompare(l.from?.text ?? "") ?? 0],
+  ["DateAsc", (l, r) => (l.date?.getTime() ?? 0) - (r.date?.getTime() ?? 0)],
+  ["DateDesc", (l, r) => (r.date?.getTime() ?? 0) - (l.date?.getTime() ?? 0)],
+]);
 
-  const list = vmg.messages.map((item) => (
+const ListPane: React.VFC<Props> = ({
+  messages,
+  onClickItem,
+  selectedItemId,
+}) => {
+  const [filterStr, setFilterStr] = useState<string>("");
+  const [sortKind, setSortKind] = useState<SortKind>("DateAsc");
+  const virtuoso = useRef<VirtuosoHandle>(null);
+
+  messages = messages.filter((m) => {
+    if (filterStr.trim() == "") {
+      return true;
+    } else {
+      return !((m.from?.text.indexOf(filterStr) ?? -1) < 0);
+    }
+  });
+  messages.sort(compareFunc.get(sortKind));
+  const { groups, groupCounts } = getGroupsByDate(messages);
+
+  const list = messages.map((item) => (
     <MessageItem
       key={item.id}
       from={item.from?.text ?? ""}
@@ -38,13 +58,13 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
     ev.preventDefault();
 
-    const currentItem = vmg.messages.find((el) => el.id == selectedItemId);
+    const currentItem = messages.find((el) => el.id == selectedItemId);
     if (!currentItem) return;
 
     const nextIndex =
-      vmg.messages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
-    if (!vmg.messages[nextIndex]) return;
-    onClickItem(vmg.messages[nextIndex].id);
+      messages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
+    if (!messages[nextIndex]) return;
+    onClickItem(messages[nextIndex].id);
     virtuoso.current?.scrollToIndex({
       index: nextIndex,
       align: "center",
@@ -62,7 +82,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
         spacing={0.5}
         overflowY="auto"
       >
-        <ListHeader onFilterChanged={(s) => {}} />
+        <ListHeader filterStr={filterStr} onFilterChanged={setFilterStr} />
         <Box flex={1}>
           <GroupedVirtuoso
             groupCounts={groupCounts}

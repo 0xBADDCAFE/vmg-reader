@@ -49,7 +49,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return succeeded;
     });
 
-    messages.sort((l, r) => l.date.getTime() - r.date.getTime());
+    // messages.sort((l, r) => l.date.getTime() - r.date.getTime());
     console.log(messages);
     console.log("Skipped:");
     console.log(skipped);
