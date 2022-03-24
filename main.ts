@@ -1,9 +1,11 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const createWindow = async () => {
   const win = new BrowserWindow({
-    width: 1280,
+    width: isDev ? 1920 : 1280,
     height: 960,
     autoHideMenuBar: true,
     webPreferences: {
@@ -11,7 +13,7 @@ const createWindow = async () => {
     },
   });
 
-  if (process.env.NODE_ENV === "development") {
+  if (isDev) {
     await win.loadURL("http://localhost:3000");
     // TODO: Load DevTools
     win.webContents.openDevTools();
