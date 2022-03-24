@@ -1,5 +1,6 @@
-import { Box, Center, Grid, GridItem } from "@chakra-ui/react";
+import { Box, Center, Grid, GridItem, Icon } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { MdAttachFile } from "react-icons/md";
 
 type Props = {
   from: string;
@@ -7,9 +8,11 @@ type Props = {
   subject: string;
   body: string;
   selected: boolean;
+  hasAttachment: boolean;
   onClick: () => void;
 };
 
+// TODO: Attachment sign
 const MessageItem: React.VFC<Props> = (item) => {
   const styleProps = useMemo(
     () =>
@@ -34,7 +37,7 @@ const MessageItem: React.VFC<Props> = (item) => {
     <Box padding={2} paddingStart={4} {...styleProps} onClick={item.onClick}>
       <Grid
         // templateColumns="48px 1fr 80px"
-        templateColumns="1fr 80px"
+        templateColumns="1fr 100px"
         templateRows="repeat(3, 1fr)"
         columnGap={2}
       >
@@ -45,6 +48,7 @@ const MessageItem: React.VFC<Props> = (item) => {
               dateStyle: "short",
               timeStyle: "short",
             })}
+            {item.hasAttachment ? <Icon as={MdAttachFile}></Icon> : null}
           </Center>
         </GridItem>
         <GridItem gridRow="1/2" isTruncated>

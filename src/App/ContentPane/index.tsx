@@ -27,7 +27,11 @@ const ContentPane: React.VFC<Props> = (props) => {
     return (
       <GridItem bg="#fff">
         <Center h="100%">
-          <Button _focus={{ outline: "none" }} onClick={props.onClickLoadVmg}>
+          <Button
+            _focus={{ outline: "none" }}
+            boxShadow="0px 3px 5px 0px #F3F4ED"
+            onClick={props.onClickLoadVmg}
+          >
             Open VMG
           </Button>
         </Center>

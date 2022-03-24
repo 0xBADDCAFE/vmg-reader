@@ -44,7 +44,7 @@ const App = () => {
     <>
       <Grid
         height="100vh"
-        templateColumns="320px 1fr"
+        templateColumns="360px 1fr"
         templateRows="1fr"
         border="1px"
         borderColor="gray.200"

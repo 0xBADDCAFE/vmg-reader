@@ -1,7 +1,8 @@
-import { Box, Center, GridItem, VStack } from "@chakra-ui/react";
+import { Box, GridItem, VStack } from "@chakra-ui/react";
 import React, { useMemo, useRef } from "react";
 import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Message, VMG } from "../../types";
+import ListHeader from "./ListHeader";
 import MessageItem from "./MessageItem";
 
 type Props = {
@@ -27,6 +28,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
         // console.log(item);
         onClickItem(item.id);
       }}
+      hasAttachment={item.attachments.length > 0}
       selected={item.id === selectedItemId}
       body={(item.html ? item.html : item.textAsHtml) ?? ""}
     />
@@ -60,9 +62,7 @@ const ListPane: React.VFC<Props> = ({ vmg, onClickItem, selectedItemId }) => {
         spacing={0.5}
         overflowY="auto"
       >
-        <Box h={16} bg="#fff" color="#e6e6e6">
-          <Center>Header</Center>
-        </Box>
+        <ListHeader onFilterChanged={(s) => {}} />
         <Box flex={1}>
           <GroupedVirtuoso
             groupCounts={groupCounts}
