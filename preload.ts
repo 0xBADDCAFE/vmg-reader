@@ -30,13 +30,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
     const progressTotal = bodyStrList.length;
     let progressCurrent = 0;
-    onProgressUpdate?.(progressCurrent, progressTotal);
+    const tId = setInterval(() => {
+      onProgressUpdate?.(progressCurrent, progressTotal);
+      if (progressCurrent === progressTotal) clearInterval(tId);
+    }, 100);
     // Parse with show progress
     const messages = (
       await Promise.all(
         bodyStrList.map(async (el) => {
           const parsed = await simpleParser(el);
-          onProgressUpdate?.(++progressCurrent, progressTotal);
+          progressCurrent++;
           return { id: crypto.randomUUID(), ...parsed };
         })
       )
