@@ -99,7 +99,7 @@ const ListPane: React.VFC<Props> = ({
           filterStr={filterStr}
           onFilterChanged={setFilterStr}
           sortKind={sortKind}
-          onClickSortMenu={setSortKind}
+          onSelectSortOption={setSortKind}
         />
         <Box flex={1}>
           <GroupedVirtuoso

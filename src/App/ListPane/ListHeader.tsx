@@ -8,8 +8,11 @@ import {
   InputRightElement,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
+  MenuItemOption,
   MenuList,
+  MenuOptionGroup,
 } from "@chakra-ui/react";
 import {
   FaSortAlphaDown,
@@ -24,7 +27,7 @@ type Props = {
   filterStr: string;
   onFilterChanged: (filterStr: string) => void;
   sortKind: SortKind;
-  onClickSortMenu: (sortKind: SortKind) => void;
+  onSelectSortOption: (sortKind: SortKind) => void;
 };
 
 const ListHeader: React.VFC<Props> = (props) => (
@@ -58,7 +61,7 @@ const ListHeader: React.VFC<Props> = (props) => (
         }
       />
     </InputGroup>
-    <Menu>
+    <Menu closeOnSelect={false}>
       <MenuButton
         h={8}
         w={8}
@@ -70,30 +73,25 @@ const ListHeader: React.VFC<Props> = (props) => (
         _focus={{ outline: "none" }}
       />
       <MenuList>
-        <MenuItem
-          icon={<FaSortAmountDown />}
-          onClick={() => props.onClickSortMenu("DateAsc")}
+        <MenuOptionGroup
+          onChange={onChangeListOption(props.onSelectSortOption)}
+          defaultValue="asc"
+          title="Order"
+          type="radio"
+          value={props.sortKind}
         >
-          Date Ascend
-        </MenuItem>
-        <MenuItem
-          icon={<FaSortAmountUp />}
-          onClick={() => props.onClickSortMenu("DateDesc")}
+          <MenuItemOption value="DateAsc">Date Ascending</MenuItemOption>
+          <MenuItemOption value="DateDesc">Date Descending</MenuItemOption>
+          <MenuItemOption value="AlphaAsc">Alpha Ascending</MenuItemOption>
+          <MenuItemOption value="AlphaDesc">Alpha Descending</MenuItemOption>
+        </MenuOptionGroup>
+        <MenuDivider />
+        <MenuOptionGroup
+          type="checkbox"
+          onChange={onChangeListOption(props.onSelectSortOption)}
         >
-          Date Descend
-        </MenuItem>
-        <MenuItem
-          icon={<FaSortAlphaDown />}
-          onClick={() => props.onClickSortMenu("AlphaAsc")}
-        >
-          Alpha Ascend
-        </MenuItem>
-        <MenuItem
-          icon={<FaSortAlphaUp />}
-          onClick={() => props.onClickSortMenu("AlphaDesc")}
-        >
-          Alpha Descend
-        </MenuItem>
+          <MenuItemOption value="attachment">Attachment only</MenuItemOption>
+        </MenuOptionGroup>
       </MenuList>
     </Menu>
   </Flex>
@@ -112,5 +110,23 @@ const getSortKindIcon = (k: SortKind): JSX.Element => {
       return <FaSortAlphaUp />;
   }
 };
+
+const onChangeListOption =
+  (onFilterChanged: (sortKind: SortKind) => void) =>
+  (value: string | string[]) => {
+    if (typeof value == "string") {
+      switch (value) {
+        case "DateAsc":
+        case "DateDesc":
+        case "AlphaAsc":
+        case "AlphaDesc":
+          onFilterChanged(value);
+        default:
+          return;
+      }
+    } else {
+      console.log(`Attachments only: ${value.length > 0}`);
+    }
+  };
 
 export default ListHeader;
