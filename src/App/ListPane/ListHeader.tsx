@@ -17,11 +17,14 @@ import {
   FaSortAmountDown,
   FaSortAmountUp,
 } from "react-icons/fa";
-import { MdClear, MdFilterAlt, MdTune } from "react-icons/md";
+import { MdClear, MdFilterAlt } from "react-icons/md";
+import { SortKind } from "../../types";
 
 type Props = {
   filterStr: string;
   onFilterChanged: (filterStr: string) => void;
+  sortKind: SortKind;
+  onClickSortMenu: (sortKind: SortKind) => void;
 };
 
 const ListHeader: React.VFC<Props> = (props) => (
@@ -62,18 +65,52 @@ const ListHeader: React.VFC<Props> = (props) => (
         marginStart={2}
         as={IconButton}
         aria-label="Options"
-        icon={<MdTune />}
+        icon={getSortKindIcon(props.sortKind)}
         variant="outline"
         _focus={{ outline: "none" }}
       />
       <MenuList>
-        <MenuItem icon={<FaSortAlphaDown />}>Alpha Descend</MenuItem>
-        <MenuItem icon={<FaSortAlphaUp />}>Alpha Ascend</MenuItem>
-        <MenuItem icon={<FaSortAmountDown />}>Date Descend</MenuItem>
-        <MenuItem icon={<FaSortAmountUp />}>Date Ascend</MenuItem>
+        <MenuItem
+          icon={<FaSortAmountDown />}
+          onClick={() => props.onClickSortMenu("DateAsc")}
+        >
+          Date Ascend
+        </MenuItem>
+        <MenuItem
+          icon={<FaSortAmountUp />}
+          onClick={() => props.onClickSortMenu("DateDesc")}
+        >
+          Date Descend
+        </MenuItem>
+        <MenuItem
+          icon={<FaSortAlphaDown />}
+          onClick={() => props.onClickSortMenu("AlphaAsc")}
+        >
+          Alpha Ascend
+        </MenuItem>
+        <MenuItem
+          icon={<FaSortAlphaUp />}
+          onClick={() => props.onClickSortMenu("AlphaDesc")}
+        >
+          Alpha Descend
+        </MenuItem>
       </MenuList>
     </Menu>
   </Flex>
 );
+
+const getSortKindIcon = (k: SortKind): JSX.Element => {
+  switch (k) {
+    case "DateAsc":
+      return <FaSortAmountDown />;
+    case "DateDesc":
+      return <FaSortAmountUp />;
+    case "AlphaAsc":
+      return <FaSortAlphaDown />;
+    case "AlphaDesc":
+    default:
+      return <FaSortAlphaUp />;
+  }
+};
 
 export default ListHeader;

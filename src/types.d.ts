@@ -23,3 +23,5 @@ type VMG = {
   fileName: string;
   messages: Message[];
 };
+
+type SortKind = "AlphaAsc" | "AlphaDesc" | "DateAsc" | "DateDesc";

@@ -1,7 +1,7 @@
 import { Box, GridItem, VStack } from "@chakra-ui/react";
 import React, { useMemo, useRef, useState } from "react";
 import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
-import { Message } from "../../types";
+import { Message, SortKind } from "../../types";
 import ListHeader from "./ListHeader";
 import MessageItem from "./MessageItem";
 
@@ -11,12 +11,11 @@ type Props = {
   selectedItemId: string;
 };
 
-type SortKind = "AlphaAsc" | "AlphaDesc" | "DateAsc" | "DateDesc";
 const compareFunc = new Map<SortKind, (l: Message, r: Message) => number>([
-  ["AlphaAsc", (l, r) => l.from?.text.localeCompare(r.from?.text ?? "") ?? 0],
-  ["AlphaDesc", (l, r) => r.from?.text.localeCompare(l.from?.text ?? "") ?? 0],
   ["DateAsc", (l, r) => (l.date?.getTime() ?? 0) - (r.date?.getTime() ?? 0)],
   ["DateDesc", (l, r) => (r.date?.getTime() ?? 0) - (l.date?.getTime() ?? 0)],
+  ["AlphaAsc", (l, r) => l.from?.text.localeCompare(r.from?.text ?? "") ?? 0],
+  ["AlphaDesc", (l, r) => r.from?.text.localeCompare(l.from?.text ?? "") ?? 0],
 ]);
 
 const ListPane: React.VFC<Props> = ({
@@ -28,17 +27,29 @@ const ListPane: React.VFC<Props> = ({
   const [sortKind, setSortKind] = useState<SortKind>("DateAsc");
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  messages = messages.filter((m) => {
-    if (filterStr.trim() == "") {
-      return true;
-    } else {
-      return !((m.from?.text.indexOf(filterStr) ?? -1) < 0);
-    }
-  });
-  messages.sort(compareFunc.get(sortKind));
-  const { groups, groupCounts } = getGroupsByDate(messages);
-
-  const list = messages.map((item) => (
+  const categorizedMessages = useMemo(() => {
+    const newMessages = messages.filter((m) => {
+      if (filterStr.trim() == "") {
+        return true;
+      } else {
+        return !((m.from?.text.indexOf(filterStr) ?? -1) < 0);
+      }
+    });
+    newMessages.sort(compareFunc.get(sortKind));
+    return newMessages;
+  }, [messages, filterStr, sortKind]);
+  const { groups, groupCounts } = useMemo(
+    () =>
+      getGroups(
+        categorizedMessages,
+        sortKind == "DateAsc" || sortKind == "DateDesc"
+          ? (m) =>
+              m.date?.toLocaleString("ja-JP", { dateStyle: "full" }) ?? null
+          : (m) => m.from?.text.charAt(0).toUpperCase() ?? null
+      ),
+    [categorizedMessages]
+  );
+  const list = categorizedMessages.map((item) => (
     <MessageItem
       key={item.id}
       from={item.from?.text ?? ""}
@@ -58,13 +69,15 @@ const ListPane: React.VFC<Props> = ({
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
     ev.preventDefault();
 
-    const currentItem = messages.find((el) => el.id == selectedItemId);
+    const currentItem = categorizedMessages.find(
+      (el) => el.id == selectedItemId
+    );
     if (!currentItem) return;
 
     const nextIndex =
-      messages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
-    if (!messages[nextIndex]) return;
-    onClickItem(messages[nextIndex].id);
+      categorizedMessages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
+    if (!categorizedMessages[nextIndex]) return;
+    onClickItem(categorizedMessages[nextIndex].id);
     virtuoso.current?.scrollToIndex({
       index: nextIndex,
       align: "center",
@@ -82,7 +95,12 @@ const ListPane: React.VFC<Props> = ({
         spacing={0.5}
         overflowY="auto"
       >
-        <ListHeader filterStr={filterStr} onFilterChanged={setFilterStr} />
+        <ListHeader
+          filterStr={filterStr}
+          onFilterChanged={setFilterStr}
+          sortKind={sortKind}
+          onClickSortMenu={setSortKind}
+        />
         <Box flex={1}>
           <GroupedVirtuoso
             groupCounts={groupCounts}
@@ -110,19 +128,22 @@ const ListPane: React.VFC<Props> = ({
   );
 };
 
-const getGroupsByDate = (messages: Message[]) => {
+const getGroups = (
+  messages: Message[],
+  labelFunc: (m: Message) => string | null
+) => {
   const groups: string[] = [];
   const groupCounts: number[] = [];
 
-  let dateStr = "";
+  let label = "";
   let groupCnt = 0;
 
   messages.forEach((m) => {
-    const newDate = m.date?.toLocaleString("ja-JP", { dateStyle: "full" });
-    if (!newDate) return;
-    if (newDate != dateStr) {
+    const newLabel = labelFunc(m);
+    if (!newLabel) return;
+    if (newLabel != label) {
       // New group
-      groups.push((dateStr = newDate));
+      groups.push((label = newLabel));
       if (groupCnt != 0) {
         groupCounts.push(groupCnt);
         groupCnt = 0;
