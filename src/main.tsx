@@ -35,9 +35,6 @@ const App = () => {
       setProgressTotal(total);
     });
     setVmg(vmg);
-    if (vmg.messages.length > 0) {
-      setSelected(vmg.messages[0].id);
-    }
     onClose();
   };
 

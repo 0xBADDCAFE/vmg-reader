@@ -49,22 +49,10 @@ const ListPane: React.VFC<Props> = ({
       ),
     [categorizedMessages]
   );
-  const list = categorizedMessages.map((item) => (
-    <MessageItem
-      key={item.id}
-      from={item.from?.text ?? ""}
-      date={item.date}
-      subject={item.subject ?? ""}
-      onClick={() => {
-        // console.log(item);
-        onClickItem(item.id);
-      }}
-      hasAttachment={item.attachments.length > 0}
-      selected={item.id === selectedItemId}
-      body={(item.html ? item.html : item.textAsHtml) ?? ""}
-    />
-  ));
 
+  if (selectedItemId == "" && categorizedMessages.length > 0) {
+    onClickItem(categorizedMessages[0].id);
+  }
   const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
     ev.preventDefault();
@@ -84,6 +72,21 @@ const ListPane: React.VFC<Props> = ({
       // behavior: "smooth",
     });
   };
+  const list = categorizedMessages.map((item) => (
+    <MessageItem
+      key={item.id}
+      from={item.from?.text ?? ""}
+      date={item.date}
+      subject={item.subject ?? ""}
+      onClick={() => {
+        // console.log(item);
+        onClickItem(item.id);
+      }}
+      hasAttachment={item.attachments.length > 0}
+      selected={item.id === selectedItemId}
+      body={(item.html ? item.html : item.textAsHtml) ?? ""}
+    />
+  ));
 
   // TODO: Footer
   return (
