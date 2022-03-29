@@ -72,7 +72,7 @@ const ListHeader: React.VFC<Props> = (props) => (
         variant="outline"
         _focus={{ outline: "none" }}
       />
-      <MenuList>
+      <MenuList zIndex={2}>
         <MenuOptionGroup
           onChange={onChangeListOption(props.onSelectSortOption)}
           defaultValue="asc"
