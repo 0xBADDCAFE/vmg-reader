@@ -1,5 +1,5 @@
 import { Box, GridItem, VStack } from "@chakra-ui/react";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Message, SortKind } from "../../types";
 import ListHeader from "./ListHeader";
@@ -26,6 +26,7 @@ const ListPane: React.VFC<Props> = ({
   const [filterStr, setFilterStr] = useState<string>("");
   const [sortKind, setSortKind] = useState<SortKind>("DateAsc");
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const shouldScroll = useRef(false);
 
   const categorizedMessages = useMemo(() => {
     const newMessages = messages.filter((m) => {
@@ -49,29 +50,52 @@ const ListPane: React.VFC<Props> = ({
       ),
     [categorizedMessages]
   );
+  useEffect(() => {
+    // Select top item when load
+    if (selectedItemId == "" && categorizedMessages.length > 0) {
+      onClickItem(categorizedMessages[0].id);
+    }
+  });
 
-  if (selectedItemId == "" && categorizedMessages.length > 0) {
-    onClickItem(categorizedMessages[0].id);
-  }
+  const onFilterChanged = (filterStr: string) => {
+    shouldScroll.current = true;
+    setFilterStr(filterStr);
+  };
+  const onSelectSortOption = (sortKind: SortKind) => {
+    shouldScroll.current = true;
+    setSortKind(sortKind);
+  };
   const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
     ev.preventDefault();
 
-    const currentItem = categorizedMessages.find(
-      (el) => el.id == selectedItemId
+    const currentIndex = categorizedMessages.findIndex(
+      (m) => m.id == selectedItemId
     );
-    if (!currentItem) return;
+    if (currentIndex === -1) return;
 
-    const nextIndex =
-      categorizedMessages.indexOf(currentItem) + (ev.key == "ArrowUp" ? -1 : 1);
+    const nextIndex = currentIndex + (ev.key == "ArrowUp" ? -1 : 1);
     if (!categorizedMessages[nextIndex]) return;
     onClickItem(categorizedMessages[nextIndex].id);
+    // TODO: scrollIntoView doesn't work to back scroll
     virtuoso.current?.scrollToIndex({
       index: nextIndex,
       align: "center",
       // behavior: "smooth",
     });
   };
+
+  // Scroll to selected item if filter changed
+  if (shouldScroll.current) {
+    const index = categorizedMessages.findIndex((m) => m.id === selectedItemId);
+    if (index != -1) {
+      virtuoso.current?.scrollToIndex({
+        index,
+        align: "center",
+      });
+      shouldScroll.current = false;
+    }
+  }
   const list = categorizedMessages.map((item) => (
     <MessageItem
       key={item.id}
@@ -100,9 +124,9 @@ const ListPane: React.VFC<Props> = ({
       >
         <ListHeader
           filterStr={filterStr}
-          onFilterChanged={setFilterStr}
+          onFilterChanged={onFilterChanged}
           sortKind={sortKind}
-          onSelectSortOption={setSortKind}
+          onSelectSortOption={onSelectSortOption}
         />
         <Box flex={1}>
           <GroupedVirtuoso
