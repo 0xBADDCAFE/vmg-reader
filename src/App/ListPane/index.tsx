@@ -37,6 +37,7 @@ const ListPane: React.VFC<Props> = ({
   selectedItemId,
 }) => {
   const [filterStr, setFilterStr] = useState<string>("");
+  const [filteredByAttachments, setFilteredByAttachments] = useState(false);
   const [sortKind, setSortKind] = useState<SortKind>("DateAsc");
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [isOpen, setOpen] = useState(false);
@@ -45,6 +46,9 @@ const ListPane: React.VFC<Props> = ({
 
   const categorizedMessages = useMemo(() => {
     const newMessages = messages.filter((m) => {
+      if (filteredByAttachments && !hasAttachment(m)) {
+        return false;
+      }
       if (filterStr.trim() == "") {
         return true;
       } else {
@@ -53,7 +57,7 @@ const ListPane: React.VFC<Props> = ({
     });
     newMessages.sort(compareFunc.get(sortKind));
     return newMessages;
-  }, [messages, filterStr, sortKind]);
+  }, [messages, filterStr, filteredByAttachments, sortKind]);
   const { groups, groupCounts } = useMemo(
     () =>
       getGroups(
@@ -82,6 +86,10 @@ const ListPane: React.VFC<Props> = ({
   const onSelectSortOption = (sortKind: SortKind) => {
     shouldScroll.current = true;
     setSortKind(sortKind);
+  };
+  const onCheckFilterByAttachments = (enable: boolean) => {
+    shouldScroll.current = true;
+    setFilteredByAttachments(enable);
   };
   const onItemContextMenu = (id: string) => (x: number, y: number) => {
     onClickItem(id);
@@ -130,7 +138,7 @@ const ListPane: React.VFC<Props> = ({
         onClickItem(item.id);
       }}
       onItemContextMenu={onItemContextMenu(item.id)}
-      hasAttachment={item.attachments.length > 0}
+      hasAttachment={hasAttachment(item)}
       selected={item.id === selectedItemId}
       body={(item.html ? item.html : item.textAsHtml) ?? ""}
     />
@@ -151,6 +159,8 @@ const ListPane: React.VFC<Props> = ({
           onFilterChanged={onFilterChanged}
           sortKind={sortKind}
           onSelectSortOption={onSelectSortOption}
+          filteredByAttachments={filteredByAttachments}
+          onCheckFilterByAttachments={onCheckFilterByAttachments}
         />
         <Box flex={1}>
           <GroupedVirtuoso
@@ -229,5 +239,8 @@ const getGroups = (
 
   return { groups, groupCounts };
 };
+
+const hasAttachment = (m: Message) =>
+  m.attachments.filter((a) => !a.related || a.size > 15000).length > 0;
 
 export default ListPane;

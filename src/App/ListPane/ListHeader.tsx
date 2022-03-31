@@ -28,6 +28,8 @@ type Props = {
   onFilterChanged: (filterStr: string) => void;
   sortKind: SortKind;
   onSelectSortOption: (sortKind: SortKind) => void;
+  filteredByAttachments: boolean;
+  onCheckFilterByAttachments: (enable: boolean) => void;
 };
 
 const ListHeader: React.VFC<Props> = (props) => (
@@ -74,7 +76,10 @@ const ListHeader: React.VFC<Props> = (props) => (
       />
       <MenuList zIndex={2}>
         <MenuOptionGroup
-          onChange={onChangeListOption(props.onSelectSortOption)}
+          onChange={onChangeListOption(
+            props.onSelectSortOption,
+            props.onCheckFilterByAttachments
+          )}
           defaultValue="asc"
           title="Order"
           type="radio"
@@ -88,7 +93,11 @@ const ListHeader: React.VFC<Props> = (props) => (
         <MenuDivider />
         <MenuOptionGroup
           type="checkbox"
-          onChange={onChangeListOption(props.onSelectSortOption)}
+          onChange={onChangeListOption(
+            props.onSelectSortOption,
+            props.onCheckFilterByAttachments
+          )}
+          value={props.filteredByAttachments ? ["attachment"] : []}
         >
           <MenuItemOption value="attachment">Attachment only</MenuItemOption>
         </MenuOptionGroup>
@@ -112,7 +121,10 @@ const getSortKindIcon = (k: SortKind): JSX.Element => {
 };
 
 const onChangeListOption =
-  (onFilterChanged: (sortKind: SortKind) => void) =>
+  (
+    onFilterChanged: (sortKind: SortKind) => void,
+    onCheckFilteredByAttachments: (enable: boolean) => void
+  ) =>
   (value: string | string[]) => {
     if (typeof value == "string") {
       switch (value) {
@@ -125,7 +137,7 @@ const onChangeListOption =
           return;
       }
     } else {
-      console.log(`Attachments only: ${value.length > 0}`);
+      onCheckFilteredByAttachments(value.length > 0);
     }
   };
 
