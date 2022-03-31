@@ -1,4 +1,4 @@
-import { Box, Center, Grid, GridItem, Icon } from "@chakra-ui/react";
+import { Box, Center, Grid, GridItem, Icon, propNames } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { MdAttachFile } from "react-icons/md";
 
@@ -10,6 +10,7 @@ type Props = {
   selected: boolean;
   hasAttachment: boolean;
   onClick: () => void;
+  onItemContextMenu: (x: number, y: number) => void;
 };
 
 // TODO: Attachment sign
@@ -34,7 +35,15 @@ const MessageItem: React.VFC<Props> = (item) => {
   //   .textContent;
 
   return (
-    <Box padding={2} paddingStart={4} {...styleProps} onClick={item.onClick}>
+    <Box
+      padding={2}
+      paddingStart={4}
+      {...styleProps}
+      onClick={item.onClick}
+      onContextMenu={(ev) => {
+        item.onItemContextMenu(ev.pageX, ev.pageY);
+      }}
+    >
       <Grid
         // templateColumns="48px 1fr 80px"
         templateColumns="1fr 100px"

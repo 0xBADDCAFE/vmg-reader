@@ -1,5 +1,18 @@
-import { Box, GridItem, VStack } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Box,
+  GridItem,
+  Menu,
+  MenuItem,
+  MenuList,
+  VStack,
+} from "@chakra-ui/react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { GroupedVirtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Message, SortKind } from "../../types";
 import ListHeader from "./ListHeader";
@@ -25,6 +38,8 @@ const ListPane: React.VFC<Props> = ({
 }) => {
   const [filterStr, setFilterStr] = useState<string>("");
   const [sortKind, setSortKind] = useState<SortKind>("DateAsc");
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [isOpen, setOpen] = useState(false);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const shouldScroll = useRef(false);
 
@@ -50,11 +65,14 @@ const ListPane: React.VFC<Props> = ({
       ),
     [categorizedMessages]
   );
+  const handleClick = useCallback(() => setOpen(false), []);
   useEffect(() => {
     // Select top item when load
     if (selectedItemId == "" && categorizedMessages.length > 0) {
       onClickItem(categorizedMessages[0].id);
     }
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   });
 
   const onFilterChanged = (filterStr: string) => {
@@ -64,6 +82,11 @@ const ListPane: React.VFC<Props> = ({
   const onSelectSortOption = (sortKind: SortKind) => {
     shouldScroll.current = true;
     setSortKind(sortKind);
+  };
+  const onItemContextMenu = (id: string) => (x: number, y: number) => {
+    setAnchorPoint({ x, y });
+    // TODO: set context menu target id
+    setOpen(true);
   };
   const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
     if (ev.key !== "ArrowUp" && ev.key !== "ArrowDown") return;
@@ -106,6 +129,7 @@ const ListPane: React.VFC<Props> = ({
         // console.log(item);
         onClickItem(item.id);
       }}
+      onItemContextMenu={onItemContextMenu(item.id)}
       hasAttachment={item.attachments.length > 0}
       selected={item.id === selectedItemId}
       body={(item.html ? item.html : item.textAsHtml) ?? ""}
@@ -151,6 +175,24 @@ const ListPane: React.VFC<Props> = ({
           />
         </Box>
       </VStack>
+      <Menu isOpen={isOpen}>
+        <MenuList position="absolute" left={anchorPoint.x} top={anchorPoint.y}>
+          <MenuItem
+            onClick={() => {
+              console.log("Filter this address");
+            }}
+          >
+            Filter this address
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              console.log("Save attachments");
+            }}
+          >
+            Save attachments
+          </MenuItem>
+        </MenuList>
+      </Menu>
     </GridItem>
   );
 };
