@@ -1,4 +1,12 @@
-import { Box, Button, Center, GridItem, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  GridItem,
+  Heading,
+  Img,
+} from "@chakra-ui/react";
 import { Message } from "../../types";
 
 type Props = {
@@ -13,13 +21,31 @@ const ContentPane: React.VFC<Props> = ({ message, onClickLoadVmg }) => {
       "text/html"
     ).body.innerHTML;
 
+    const attachments =
+      message.attachments.filter((a) => !a.related).length > 0 ? (
+        <Flex mt={4} gap={4} flexWrap="wrap">
+          {message.attachments.map((a) => (
+            <Img
+              src={URL.createObjectURL(
+                new Blob([a.content], { type: a.contentType })
+              )}
+            />
+          ))}
+        </Flex>
+      ) : null;
+
     return (
       <GridItem bg="#fff" padding={8} overflow="auto">
         <Heading size="md">{message.subject}</Heading>
         <Heading size="sm" mt={4}>
           {message.from?.text}
         </Heading>
-        <Box mt={4} dangerouslySetInnerHTML={{ __html }} />
+        <Box
+          className="message-content-body"
+          mt={4}
+          dangerouslySetInnerHTML={{ __html }}
+        />
+        {attachments}
       </GridItem>
     );
   } else
