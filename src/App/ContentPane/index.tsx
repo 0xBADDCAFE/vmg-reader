@@ -6,19 +6,18 @@ type Props = {
   onClickLoadVmg: () => Promise<void>;
 };
 
-const ContentPane: React.VFC<Props> = (props) => {
-  if (props.message) {
+const ContentPane: React.VFC<Props> = ({ message, onClickLoadVmg }) => {
+  if (message) {
     const __html = new DOMParser().parseFromString(
-      (props.message.html ? props.message.html : props.message.textAsHtml) ??
-        "",
+      (message.html ? message.html : message.textAsHtml) ?? "",
       "text/html"
     ).body.innerHTML;
 
     return (
       <GridItem bg="#fff" padding={8} overflow="auto">
-        <Heading size="md">{props.message.subject}</Heading>
+        <Heading size="md">{message.subject}</Heading>
         <Heading size="sm" mt={4}>
-          {props.message.from?.text}
+          {message.from?.text}
         </Heading>
         <Box mt={4} dangerouslySetInnerHTML={{ __html }} />
       </GridItem>
@@ -30,7 +29,7 @@ const ContentPane: React.VFC<Props> = (props) => {
           <Button
             _focus={{ outline: "none" }}
             boxShadow="0px 3px 5px 0px #F3F4ED"
-            onClick={props.onClickLoadVmg}
+            onClick={onClickLoadVmg}
           >
             Open VMG
           </Button>
