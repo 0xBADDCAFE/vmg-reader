@@ -84,8 +84,8 @@ const ListPane: React.VFC<Props> = ({
     setSortKind(sortKind);
   };
   const onItemContextMenu = (id: string) => (x: number, y: number) => {
+    onClickItem(id);
     setAnchorPoint({ x, y });
-    // TODO: set context menu target id
     setOpen(true);
   };
   const onListKeyDown: React.KeyboardEventHandler<"div"> = (ev) => {
@@ -179,7 +179,10 @@ const ListPane: React.VFC<Props> = ({
         <MenuList position="absolute" left={anchorPoint.x} top={anchorPoint.y}>
           <MenuItem
             onClick={() => {
-              console.log("Filter this address");
+              onFilterChanged(
+                categorizedMessages.find((m) => m.id == selectedItemId)?.from
+                  ?.text ?? ""
+              );
             }}
           >
             Filter this address
