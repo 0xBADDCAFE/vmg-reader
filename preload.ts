@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { readFile } from "fs/promises";
 import { ParsedMail, simpleParser } from "mailparser";
-import { VMG } from "./src/types";
+import { Message, VMG } from "./src/types";
 
 const MARKER_OFFSET = "BEGIN:VBODY".length + 2;
 
@@ -17,9 +17,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
     const fileName = getFileNameLabel(filePathList);
 
-    const decoder = new TextDecoder("utf-8");
     const skipped: ParsedMail[] = [];
-    const bodyStrMap: Map<String, Buffer> = new Map();
+    const bodyStrList: Buffer[] = [];
 
     await Promise.all(
       filePathList.map(async (filePath) => {
@@ -29,28 +28,33 @@ contextBridge.exposeInMainWorld("electronAPI", {
           // First, get all messages to get to total to show progress
           const bodyBuffer = s.slice(offset, s.indexOf("END:VBODY", offset));
 
-          bodyStrMap.set(decoder.decode(bodyBuffer), bodyBuffer);
+          bodyStrList.push(bodyBuffer);
           offset = s.indexOf("BEGIN:VBODY", offset) + MARKER_OFFSET;
         }
       })
     );
 
-    const progressTotal = bodyStrMap.size;
+    const progressTotal = bodyStrList.length;
     let progressCurrent = 0;
     const tId = setInterval(() => {
       onProgressUpdate?.(progressCurrent, progressTotal);
       if (progressCurrent === progressTotal) clearInterval(tId);
     }, 100);
     // Parse with show progress
-    const messages = (
-      await Promise.all(
-        [...bodyStrMap.values()].map(async (el) => {
-          const parsed = await simpleParser(el);
-          progressCurrent++;
-          return { id: crypto.randomUUID(), ...parsed };
-        })
-      )
-    ).filter((parsed) => {
+    const messages = [
+      ...new Map<string, Message>(
+        (await Promise.all(
+          bodyStrList.map(async (el) => {
+            const parsed = await simpleParser(el);
+            const id = `${parsed.date.getTime()}\n${parsed.subject}\n${
+              parsed.html || parsed.textAsHtml
+            }`;
+            progressCurrent++;
+            return [id, { id, ...parsed }];
+          })
+        )) as [string, Message][]
+      ).values(),
+    ].filter((parsed) => {
       const succeeded = parsed.from;
       if (!succeeded) {
         // SMS or other
@@ -58,6 +62,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       }
       return succeeded;
     });
+    console.log("uniqued");
 
     // messages.sort((l, r) => l.date.getTime() - r.date.getTime());
     console.log(messages);
