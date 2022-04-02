@@ -13,22 +13,29 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "open-file-dialog",
       "Select VMG File"
     );
-    if (filePathList.length == 0) {
-      return { fileName: "", messages: [] };
-    }
-    const fileName = filePathList[0];
-    const s = await readFile(fileName);
+    if (filePathList.length == 0) return { fileName: "", messages: [] };
 
+    const fileName = getFileNameLabel(filePathList);
+
+    const decoder = new TextDecoder("utf-8");
     const skipped: ParsedMail[] = [];
-    const bodyStrList: Buffer[] = [];
-    let offset = s.indexOf("BEGIN:VBODY") + MARKER_OFFSET;
-    while (offset > MARKER_OFFSET) {
-      // First, get all messages to get to total to show progress
-      const bodyStr = s.slice(offset, s.indexOf("END:VBODY", offset));
-      bodyStrList.push(bodyStr);
-      offset = s.indexOf("BEGIN:VBODY", offset) + MARKER_OFFSET;
-    }
-    const progressTotal = bodyStrList.length;
+    const bodyStrMap: Map<String, Buffer> = new Map();
+
+    await Promise.all(
+      filePathList.map(async (filePath) => {
+        const s = await readFile(filePath);
+        let offset = s.indexOf("BEGIN:VBODY") + MARKER_OFFSET;
+        while (offset > MARKER_OFFSET) {
+          // First, get all messages to get to total to show progress
+          const bodyBuffer = s.slice(offset, s.indexOf("END:VBODY", offset));
+
+          bodyStrMap.set(decoder.decode(bodyBuffer), bodyBuffer);
+          offset = s.indexOf("BEGIN:VBODY", offset) + MARKER_OFFSET;
+        }
+      })
+    );
+
+    const progressTotal = bodyStrMap.size;
     let progressCurrent = 0;
     const tId = setInterval(() => {
       onProgressUpdate?.(progressCurrent, progressTotal);
@@ -37,7 +44,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // Parse with show progress
     const messages = (
       await Promise.all(
-        bodyStrList.map(async (el) => {
+        [...bodyStrMap.values()].map(async (el) => {
           const parsed = await simpleParser(el);
           progressCurrent++;
           return { id: crypto.randomUUID(), ...parsed };
@@ -73,3 +80,14 @@ window.addEventListener("DOMContentLoaded", () => {
     replaceText(`${dependency}-version`, process.versions[dependency]);
   }
 });
+
+const getFileNameLabel = (filePathList: string[]) => {
+  switch (filePathList.length) {
+    case 0:
+      return "";
+    case 1:
+      return filePathList[0];
+    default:
+      return `${filePathList[0]} and ${filePathList.slice(1).length} files`;
+  }
+};
