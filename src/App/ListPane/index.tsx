@@ -82,6 +82,9 @@ const ListPane: React.VFC<Props> = ({
   const onFilterChanged = (filterStr: string) => {
     shouldScroll.current = true;
     setFilterStr(filterStr);
+    if (filterStr === "") {
+      setFilteredByAttachments(false);
+    }
   };
   const onSelectSortOption = (sortKind: SortKind) => {
     shouldScroll.current = true;
