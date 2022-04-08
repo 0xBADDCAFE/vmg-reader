@@ -44,6 +44,10 @@ const ListPane: React.VFC<Props> = ({
   const virtuoso = useRef<VirtuosoHandle>(null);
   const shouldScroll = useRef(false);
 
+  const selectedMessage = useMemo(
+    () => messages.find((m) => m.id === selectedItemId),
+    [messages, selectedItemId]
+  );
   const categorizedMessages = useMemo(() => {
     const newMessages = messages.filter((m) => {
       if (filteredByAttachments && !hasAttachment(m)) {
@@ -192,21 +196,22 @@ const ListPane: React.VFC<Props> = ({
         <MenuList position="absolute" left={anchorPoint.x} top={anchorPoint.y}>
           <MenuItem
             onClick={() => {
-              onFilterChanged(
-                categorizedMessages.find((m) => m.id == selectedItemId)?.from
-                  ?.text ?? ""
-              );
+              onFilterChanged(selectedMessage?.from?.text ?? "");
             }}
           >
             Filter this address
           </MenuItem>
-          <MenuItem
-            onClick={() => {
-              console.log("Save attachments");
-            }}
-          >
-            Save attachments
-          </MenuItem>
+          {hasAttachment(selectedMessage) ? (
+            <MenuItem
+              onClick={async () => {
+                await window.electronAPI.saveAttachments(
+                  selectedMessage?.attachments
+                );
+              }}
+            >
+              Save attachments
+            </MenuItem>
+          ) : null}
         </MenuList>
       </Menu>
     </GridItem>
@@ -243,7 +248,7 @@ const getGroups = (
   return { groups, groupCounts };
 };
 
-const hasAttachment = (m: Message) =>
-  m.attachments.filter((a) => !a.related || a.size > 15000).length > 0;
+const hasAttachment = (m?: Message) =>
+  (m?.attachments.filter((a) => !a.related || a.size > 15000).length ?? -1) > 0;
 
 export default ListPane;

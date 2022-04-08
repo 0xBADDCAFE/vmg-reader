@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { readFile } from "fs/promises";
-import { ParsedMail, simpleParser } from "mailparser";
+import { readFile, writeFile } from "fs/promises";
+import { Attachment, ParsedMail, simpleParser } from "mailparser";
+import path from "path";
 import { Message, VMG } from "./src/types";
 
 const MARKER_OFFSET = "BEGIN:VBODY".length + 2;
@@ -13,7 +14,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "open-file-dialog",
       "Select VMG File"
     );
-    if (filePathList.length == 0) return { fileName: "", messages: [] };
+    if (filePathList.length === 0) return { fileName: "", messages: [] };
 
     const fileName = getFileNameLabel(filePathList);
 
@@ -70,6 +71,27 @@ contextBridge.exposeInMainWorld("electronAPI", {
     console.log(skipped);
 
     return { fileName, messages };
+  },
+  saveAttachments: async (
+    files: Attachment[] | undefined
+  ): Promise<boolean> => {
+    if (files === undefined) return false;
+    const filePathList: string[] = await ipcRenderer.invoke(
+      "open-directory-dialog"
+    );
+    if (filePathList.length === 0) return false;
+
+    console.log(filePathList);
+    await Promise.all(
+      files.map(async (f, i) => {
+        await writeFile(
+          path.join(filePathList[0], f.filename ?? `file${i}`),
+          f.content
+        );
+      })
+    );
+
+    return true;
   },
 });
 

@@ -1,9 +1,10 @@
-import { ParsedMail } from "mailparser";
+import { Attachment, ParsedMail } from "mailparser";
 
 export interface IElectronAPI {
   openVmg: (
     onProgressUpdate?: (current: number, total: number) => void
   ) => Promise<VMG>;
+  saveAttachments: (attachments: Attachment[] | undefined) => Promise<boolean>;
 }
 
 declare global {

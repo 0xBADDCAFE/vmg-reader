@@ -52,3 +52,15 @@ ipcMain.handle("open-file-dialog", async (ev, msg) => {
   }
   return result.filePaths;
 });
+
+ipcMain.handle("open-directory-dialog", async (ev, msg) => {
+  var win = BrowserWindow.getFocusedWindow();
+  if (win == null) return [];
+  var result = await dialog.showOpenDialog(win, {
+    properties: ["openDirectory"],
+  });
+  if (result.canceled) {
+    return [];
+  }
+  return result.filePaths;
+});
